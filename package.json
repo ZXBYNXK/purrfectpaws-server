@@ -1,0 +1,23 @@
+{
+  "name": "purrfectpaws-server",
+  "version": "0.0.0",
+  "description": "Backend for https://www.github.com/ZXBYNXK/purrfectpaws.git",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZXBYNXK/purrfectpaws-server.git"
+  },
+  "author": "Darius Rain",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ZXBYNXK/purrfectpaws-server/issues"
+  },
+  "homepage": "https://github.com/ZXBYNXK/purrfectpaws-server#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^6.7.0"
+  }
+}

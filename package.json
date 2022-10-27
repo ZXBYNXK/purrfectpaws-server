@@ -4,7 +4,8 @@
   "description": "Backend for https://www.github.com/ZXBYNXK/purrfectpaws.git",
   "main": "index.js",
   "scripts": {
-    "test": "node index.js"
+    "test": "node index.js",
+    "start": "nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -17,7 +18,10 @@
   },
   "homepage": "https://github.com/ZXBYNXK/purrfectpaws-server#readme",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.18.2",
-    "mongoose": "^6.7.0"
+    "mongoose": "^6.7.0",
+    "nodemailer": "^6.8.0",
+    "nodemon": "^2.0.20"
   }
 }

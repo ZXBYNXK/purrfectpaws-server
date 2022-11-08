@@ -1,7 +1,8 @@
 const express = require("express");
 const mongoose = require("mongoose")
 const server = express();
-const {sec, mailer} = require("./modules");
+const {sec, mailer, templates, models} = require("./modules");
+const {PetSitter} = models;
 const cors = require("cors");
 
 server.use(cors({ ...sec.config.cors }))
@@ -23,92 +24,106 @@ server.get('/', async (req, res) => {
 
 
 server.post("/contact-us", async (req, res) => {
-  
-  try {
+    try {
+        
+        const {
+            email, subject, 
+            message, petSitters
+        } = req.body;
 
-    console.log(req.body);
-    const {
-        email, subject, 
-        message, firstName, 
-        lastName, phone,
-        startDate, endDate, 
-        locationState, locationCity, 
-        addressLine1, addressLine2 
-    } = req.body;
-    
-    const sd = new Date(startDate);
-    const ed = new Date(endDate);
+        await mailer.mail(
+            email,
+            subject,
+            message,
+            templates.contactUs(req.body),
+            true,
+        );
 
-    await mailer.mail(
-        email,
-        subject,
-        message,
-        `<div style="width: 100%;display:flex;flex-direction:column;font-family:sans-serif;">
-            <div>
-                <strong>Name:&nbsp;</strong>
-                <span>${firstName} ${lastName}</span><br />
+        await PetSitter.findByIdAndUpdate({$addToSet: {emails: [email]}});
+        
+        return res.json({
+            "success": true,
+            "error": false,
+            "eMessage": `Email has been sent successfuly, expect a response.`
+        })
 
-                <strong>Email:&nbsp;</strong>
-                <br />
-                <a href="mail-to:${email}">${email}</a>
-                <br />
-                <br />
+    } catch (error) {
+        // console.error(error);
+        return res.json({
+            "success": false,
+            "error": 400,
+            "eMessage": "Form is invalid, please try again.",
+        })
 
-                <strong>Phone:&nbsp;</strong>
-                <br />
-                <a href="tel:${phone}">${phone}</a>
-                <br />
-                <br />
-
-                <strong>Address Line 1:&nbsp;</strong>
-                <span>${addressLine1}</span><br />
-                
-                <strong>Address Line 2:&nbsp;</strong>
-                <span>${addressLine2 || "N/A"}</span><br />
-                
-                <strong>State:&nbsp;</strong>     
-                <span>
-                    ${locationState}
-                </span><br />
-                
-                <strong>City:&nbsp;</strong>         
-                <span>
-                    ${locationCity}
-                </span><br />
-                
-                <strong>Message:&nbsp;</strong>
-                <span>${message}</span><br />
-                
-                <strong>Date Start:&nbsp;</strong>                
-                <span>${sd.toDateString()}</span><br />                
-
-                <strong>Date End:&nbsp;</strong>
-                <span>${ed.toDateString()}</span><br />                
-
-                <img style="height: 90px;" src="https://res.cloudinary.com/dbg1cm3ro/image/upload/v1666376361/purrfect-paws/logo_sriet4.webp"></img>
-            </div>
-        </div>`,
-        true,
-    );
-  } catch (error) {
-    console.error(error);
-  }
+    }
 });
 
-// server.post('/pet-sitters', async (req, res) => {
-  
-// });
+
+server.post("/pet-sitter-select", async (req, res) => {
+    try {
+
+         let petSitterSelection = await PetSitter.find({
+                $or: [
+                    {
+                        clients: { $in: req.body.email}
+                    }, 
+                    {
+                        locationState: {$eq: req.body.locationState}
+                    }
+                ]
+            });
+        console.log(req.body)
+        console.log(petSitterSelection)
+        return res.json(petSitterSelection);
+        
+    } catch (error) {
+        // console.error(error);
+        return res.json({
+            "success": false,
+            "error": 500,
+            "eMessage": "Server error.",
+        })
+    }
+})
+
+
+server.post("/pet-sitter", async (req, res) => {
+    
+    try {
+
+        let sitter = new PetSitter(req.body);
+
+        await PetSitter.create(sitter);
+
+        return res.json({
+            "success": true,
+            "error": false,
+            "eMessage": "Pet sitter has been successfuly stored to database."
+        })
+
+    } catch (error) {
+        
+        console.error(error);
+
+        return res.json({
+            "success": false,
+            "error": 400,
+            "eMessage": "Data is invalid, please try again.",
+        })   
+
+    }
+});
 
 // Connect MongoDB
-// (async () => {
-//   try {
-//     await mongoose.connect(sec.database.mongodbUri);
-//     console.log("Connected to database.")
-//   } catch (err) {
-//     console.error(err);
-//     process.exit(1);
-//   }
-// })();
+(async () => {
+  try {
+    await mongoose.connect(sec.database.mongodbUri);
+    console.log("Connected to database.")
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
+  }
+})();
 
 // Connect Express
 (async () => {

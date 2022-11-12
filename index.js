@@ -28,18 +28,17 @@ server.post("/contact-us", async (req, res) => {
         
         const {
             email, subject, 
-            message, petSitters
+            message, selectedPetSitters
         } = req.body;
 
         await mailer.mail(
-            email,
+            [email, ...selectedPetSitters],
             subject,
             message,
             templates.contactUs(req.body),
-            true,
         );
 
-        await PetSitter.findByIdAndUpdate({$addToSet: {emails: [email]}});
+        // await PetSitter.findByIdAndUpdate({$addToSet: {emails: [email]}});
         
         return res.json({
             "success": true,
@@ -72,8 +71,8 @@ server.post("/pet-sitter-select", async (req, res) => {
                     }
                 ]
             });
-        console.log(req.body)
-        console.log(petSitterSelection)
+        // console.log(req.body)
+        // console.log(petSitterSelection)
         return res.json(petSitterSelection);
         
     } catch (error) {

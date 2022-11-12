@@ -1,26 +1,22 @@
 const driver = require("./driver");
 const {sendGrid} = require("../sec/config");
-module.exports = mail = async (to, subject, text, html, toAdmin=false) => {
+module.exports = mail = async (to, subject, text, html) => {
     try {
-        if (!toAdmin) { 
-            await driver.send({
-                from: sendGrid.verifiedSender,
-                to,
-                subject,
-                text,
-                html
-            });
-        } else {
-            await driver.send({
-                from: sendGrid.verifiedSender,
-                to: sendGrid.adminEmail,
-                subject,
-                text,
-                html
-            });
-        }
+
+        await driver.send({
+            from: sendGrid.verifiedSender,
+            to: [...to.map(client => client.split(":")[0]), sendGrid.adminEmail],
+            replyToList: [...to.map(client => {
+                let data = client.split(":");
+                return { name: data[1], email: data[0] }
+            }), { name: "Julie Rosa (Admin)" , email: sendGrid.adminEmail}],
+            subject,
+            text,
+            html
+        }, true);
+        
             
-        console.log("Message sent!");
+        // console.log("Message sent!");
         return JSON.stringify({
             success: true,
             message: "Your message has been sent.",

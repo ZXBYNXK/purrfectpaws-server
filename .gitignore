@@ -1,3 +1,4 @@
 node_modules/
 sec/
 modules/sec
+install_env.sh

@@ -1,8 +1,8 @@
-const sendMail = require("./sendMail");
-const transporter = require("./transporter");
-const messages = require("./messages")
+const mail = require("./mail");
+const message = require("./message");
+const driver = require("./driver");
 module.exports = mailer = {
-    messages,
-    sendMail, 
-    transporter,
+    mail,
+    message,
+    driver,
 }

@@ -19,10 +19,13 @@ module.exports = mail = async (to, subject, text, html) => {
         // console.log("Message sent!");
         return JSON.stringify({
             success: true,
-            message: "Your message has been sent.",
+            eMessage: "Your message has been sent.",
         })
     } catch (error) {
-        console.error(error);
-        return 1;
+        // console.error(error);
+        return JSON.stringify({
+            success: false,
+            eMessage: "Sorry an issue occured during emailing, please try again.",
+        });
     }
 }
